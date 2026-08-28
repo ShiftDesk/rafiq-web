@@ -319,11 +319,15 @@ window.onload = () => {
     return
   }
   if (token && currentUser) {
-    if (currentUser.plan_status !== "active") {
-      fetch(`${API}/api/stripe/checkout`, {method:"POST",headers:{"Content-Type":"application/json","Authorization":`Bearer ${token}`},body:JSON.stringify({plan:currentUser.plan||"basic"})}).then(r=>r.json()).then(d=>{if(d.url)window.location.href=d.url})
-      return
+    if (currentUser.plan_status === 'active') {
+      showApp()
+    } else {
+      // Not paid - clear session and show login
+      localStorage.removeItem('rafiq_token')
+      localStorage.removeItem('rafiq_user')
+      token = null
+      currentUser = null
     }
-    showApp()
   }
 
 // Handle Stripe success redirect
