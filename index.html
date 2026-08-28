@@ -69,6 +69,10 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sa
 .send-btn{width:44px;height:44px;border-radius:50%;background:var(--orange);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .send-btn:hover{background:#A0602A}
 .send-btn svg{fill:white}
+.mic-btn{width:44px;height:44px;border-radius:50%;background:#4A4A4A;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background 0.2s}
+.mic-btn:hover{background:#333}
+.mic-btn.recording{background:#e53e3e;animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
 .typing{display:flex;align-items:center;gap:4px;padding:12px 16px;background:#F5EDE3;border-radius:18px 18px 18px 4px;width:fit-content}
 .typing span{width:6px;height:6px;border-radius:50%;background:var(--light);animation:typing 1.2s infinite}
 .typing span:nth-child(2){animation-delay:0.2s}
@@ -117,8 +121,8 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sa
       <div class="form-group"><label class="form-label">Email</label><input class="form-input" type="email" id="login-email" placeholder="your@email.com"/></div>
       <div class="form-group"><label class="form-label">Password</label><input class="form-input" type="password" id="login-password" placeholder="••••••••" onkeydown="if(event.key==='Enter')login()"/></div>
       <button class="btn-primary" onclick="login()">Sign in →</button>
-      <div class="auth-switch" style="margin-top:0.8rem"><a href="#" onclick="showForgot();return false;">Forgot password?</a></div>
-      <div class="auth-switch">Don't have an account? <a href="#" onclick="showSignup();return false;">Create one</a></div>
+      <div class="auth-switch" style="margin-top:0.8rem"><a onclick="showForgot()">Forgot password?</a></div>
+      <div class="auth-switch">Don't have an account? <a onclick="showSignup()">Create one</a></div>
     </div>
 
     <!-- PLAN SELECTION -->
@@ -155,7 +159,7 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sa
         </div>
       </div>
       <button class="btn-primary" onclick="showSignupDetails()">Continue →</button>
-      <div class="auth-switch">Already have an account? <a href="#" onclick="showLogin();return false;">Sign in</a></div>
+      <div class="auth-switch">Already have an account? <a onclick="showLogin()">Sign in</a></div>
     </div>
 
     <!-- SIGNUP DETAILS -->
@@ -168,8 +172,8 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sa
       <div class="form-group"><label class="form-label">Password</label><input class="form-input" type="password" id="signup-password" placeholder="At least 8 characters"/></div>
       <div class="form-group"><label class="form-label">Language</label><select class="form-input" id="signup-language"><option value="ar">العربية (Arabic)</option><option value="en">English</option></select></div>
       <button class="btn-primary" onclick="signup()">Create account & pay →</button>
-      <div class="auth-switch"><a href="#" onclick="showPlanSelection();return false;">← Change plan</a></div>
-      <div class="auth-switch">Already have an account? <a href="#" onclick="showLogin();return false;">Sign in</a></div>
+      <div class="auth-switch"><a onclick="showPlanSelection()">← Change plan</a></div>
+      <div class="auth-switch">Already have an account? <a onclick="showLogin()">Sign in</a></div>
     </div>
 
     <!-- FORGOT PASSWORD -->
@@ -180,7 +184,7 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sa
       <div class="auth-success" id="forgot-success"></div>
       <div class="form-group"><label class="form-label">Email</label><input class="form-input" type="email" id="forgot-email" placeholder="your@email.com"/></div>
       <button class="btn-primary" onclick="forgotPassword()">Send reset link →</button>
-      <div class="auth-switch"><a href="#" onclick="showLogin();return false;">← Back to sign in</a></div>
+      <div class="auth-switch"><a onclick="showLogin()">← Back to sign in</a></div>
     </div>
 
     <!-- RESET PASSWORD -->
@@ -232,6 +236,7 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sa
         </div>
         <div class="chat-input-row">
           <input class="chat-input" id="chat-input" placeholder="Type a message..." onkeydown="if(event.key==='Enter')sendMessage()"/>
+          <button class="mic-btn" id="mic-btn" onclick="toggleVoice()" title="Voice message"><svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M12 1a4 4 0 0 1 4 4v6a4 4 0 0 1-8 0V5a4 4 0 0 1 4-4zm-1 14.93A7 7 0 0 1 5 9H3a9 9 0 0 0 8 8.94V20H8v2h8v-2h-3v-2.07A9 9 0 0 0 21 9h-2a7 7 0 0 1-6 6.93z"/></svg></button>
           <button class="send-btn" onclick="sendMessage()"><svg width="18" height="18" viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2v7z"/></svg></button>
         </div>
       </div>
@@ -318,17 +323,7 @@ window.onload = () => {
     showResetForm(resetToken)
     return
   }
-  if (token && currentUser) {
-    if (currentUser.plan_status === 'active') {
-      showApp()
-    } else {
-      // Not paid - clear session and show login
-      localStorage.removeItem('rafiq_token')
-      localStorage.removeItem('rafiq_user')
-      token = null
-      currentUser = null
-    }
-  }
+  if (token && currentUser) showApp()
 
 // Handle Stripe success redirect
 if (window.location.pathname === '/success') {
@@ -406,6 +401,7 @@ async function login() {
     localStorage.setItem('rafiq_user', JSON.stringify(currentUser))
 
     // Redirect to Stripe checkout
+    const plan = window._selectedPlan || 'pro'
     const checkoutRes = await fetch(`${API}/api/stripe/checkout`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
@@ -501,14 +497,12 @@ function showApp() {
   document.getElementById('settings-name').value = name
   document.getElementById('settings-language').value = currentUser.language || 'ar'
   // Show pending message if not active
-  if (currentUser.plan_status !== 'active') {
-    // Not paid - sign out and show login
-    localStorage.removeItem('rafiq_token')
-    localStorage.removeItem('rafiq_user')
-    token = null
-    currentUser = null
-    document.getElementById('app').style.display = 'none'
-    document.getElementById('auth-page').style.display = 'flex'
+  if (currentUser.plan_status === 'pending') {
+    const lang = currentUser.language === 'ar'
+    const msgEl = document.getElementById('welcome-msg')
+    msgEl.innerHTML = lang
+      ? `مرحبا! حسابك في انتظار الدفع.<br><br><button onclick="completePendingPayment()" style="padding:12px 24px;background:#C4783A;color:white;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;margin-top:8px">أكمل الدفع الآن →</button>`
+      : `Hi! Your account is pending payment.<br><br><button onclick="completePendingPayment()" style="padding:12px 24px;background:#C4783A;color:white;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;margin-top:8px">Complete payment now →</button>`
     return
   }
   document.getElementById('welcome-msg').textContent = currentUser.language === 'ar'
@@ -553,6 +547,7 @@ async function sendMessage() {
     const data = await res.json()
     hideTyping(); isTyping = false
     appendMessage(data.response || 'Sorry, something went wrong.', 'rafiq')
+    speak(data.response || '')
   } catch(e) { hideTyping(); isTyping = false; appendMessage('Connection error. Please try again.', 'rafiq') }
 }
 
@@ -662,6 +657,62 @@ async function changePassword() {
     document.getElementById('cp-new').value = ''
     document.getElementById('cp-confirm').value = ''
   } catch(e) { errEl.textContent = 'Connection error'; errEl.style.display = 'block' }
+}
+
+let mediaRecorder = null;
+let audioChunks = [];
+let isRecording = false;
+
+async function toggleVoice() {
+  const btn = document.getElementById('mic-btn');
+  if (!isRecording) {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      mediaRecorder = new MediaRecorder(stream);
+      audioChunks = [];
+      mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+      mediaRecorder.onstop = async () => {
+        const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+        const reader = new FileReader();
+        reader.onloadend = async () => {
+          const base64 = reader.result.split(',')[1];
+          try {
+            const res = await fetch(`${API}/api/agent/voice`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+              body: JSON.stringify({ audio: base64 })
+            });
+            const data = await res.json();
+            if (data.text) {
+              document.getElementById('chat-input').value = data.text;
+              sendMessage();
+            } else if (data.error) {
+              appendMessage('Could not understand audio. Please try again.', 'rafiq');
+            }
+          } catch(e) { console.error('Voice error:', e); }
+        };
+        reader.readAsDataURL(audioBlob);
+        stream.getTracks().forEach(t => t.stop());
+      };
+      mediaRecorder.start();
+      isRecording = true;
+      btn.classList.add('recording');
+    } catch(e) { alert('Microphone access denied. Please allow microphone in browser settings.'); }
+  } else {
+    mediaRecorder.stop();
+    isRecording = false;
+    btn.classList.remove('recording');
+  }
+}
+
+function speak(text) {
+  if (!text || !window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.lang = currentUser && currentUser.language === 'ar' ? 'ar-SA' : 'en-US';
+  utter.rate = 1;
+  utter.pitch = 1;
+  window.speechSynthesis.speak(utter);
 }
 </script>
 </body>
