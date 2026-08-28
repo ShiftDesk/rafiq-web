@@ -319,6 +319,20 @@ window.onload = () => {
     return
   }
   if (token && currentUser) showApp()
+
+// Handle Stripe success redirect
+if (window.location.pathname === '/success') {
+  const params = new URLSearchParams(window.location.search)
+  const sessionId = params.get('session_id')
+  if (sessionId && token && currentUser) {
+    currentUser.plan_status = 'active'
+    localStorage.setItem('rafiq_user', JSON.stringify(currentUser))
+    window.history.pushState({}, '', '/')
+    showApp()
+    showNotif('Payment successful! Welcome to Rafiq 🎉')
+  }
+}
+
 }
 
 function showNotif(msg) {
@@ -380,7 +394,20 @@ async function login() {
     token = data.token; currentUser = data.customer
     localStorage.setItem('rafiq_token', token)
     localStorage.setItem('rafiq_user', JSON.stringify(currentUser))
-    showApp()
+
+    // Redirect to Stripe checkout
+    const plan = window._selectedPlan || 'pro'
+    const checkoutRes = await fetch(`${API}/api/stripe/checkout`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+      body: JSON.stringify({ plan })
+    })
+    const checkoutData = await checkoutRes.json()
+    if (checkoutData.url) {
+      window.location.href = checkoutData.url
+    } else {
+      showApp()
+    }
   } catch(e) { errEl.textContent = 'Connection error'; errEl.style.display = 'block' }
 }
 
@@ -400,7 +427,20 @@ async function signup() {
     token = data.token; currentUser = data.customer
     localStorage.setItem('rafiq_token', token)
     localStorage.setItem('rafiq_user', JSON.stringify(currentUser))
-    showApp()
+
+    // Redirect to Stripe checkout
+    const plan = window._selectedPlan || 'pro'
+    const checkoutRes = await fetch(`${API}/api/stripe/checkout`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+      body: JSON.stringify({ plan })
+    })
+    const checkoutData = await checkoutRes.json()
+    if (checkoutData.url) {
+      window.location.href = checkoutData.url
+    } else {
+      showApp()
+    }
   } catch(e) { errEl.textContent = 'Connection error'; errEl.style.display = 'block' }
 }
 
@@ -452,6 +492,13 @@ function showApp() {
   document.getElementById('sidebar-plan').textContent = currentUser.plan_status === 'trial' ? 'Pro Trial' : currentUser.plan
   document.getElementById('settings-name').value = name
   document.getElementById('settings-language').value = currentUser.language || 'ar'
+  // Show pending message if not active
+  if (currentUser.plan_status === 'pending') {
+    document.getElementById('welcome-msg').textContent = currentUser.language === 'ar'
+      ? 'مرحبا! حسابك في انتظار الدفع. يرجى إكمال عملية الدفع للبدء.'
+      : 'Hi! Your account is pending payment. Please complete checkout to get started.'
+    return
+  }
   document.getElementById('welcome-msg').textContent = currentUser.language === 'ar'
     ? `مرحبا ${name}! أنا رفيقك الذكي. كيف أقدر أساعدك اليوم؟`
     : `Hello ${name}! I'm Rafiq, your AI companion. How can I help you today?`
