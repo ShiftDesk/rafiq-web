@@ -396,11 +396,11 @@ async function login() {
     localStorage.setItem('rafiq_user', JSON.stringify(currentUser))
 
     // Redirect to Stripe checkout
-    const plan = window._selectedPlan || 'pro'
+    const selectedPlan = window._selectedPlan || "pro"
     const checkoutRes = await fetch(`${API}/api/stripe/checkout`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-      body: JSON.stringify({ plan })
+      body: JSON.stringify({ plan: selectedPlan })
     })
     const checkoutData = await checkoutRes.json()
     if (checkoutData.url) {
@@ -420,7 +420,7 @@ async function signup() {
   errEl.style.display = 'none'
   if (!name || !email || !password) { errEl.textContent = 'Please fill in all fields'; errEl.style.display = 'block'; return }
   try {
-    const plan = window._selectedPlan || 'pro'
+    const selectedPlan = window._selectedPlan || "pro"
   const res = await fetch(`${API}/api/auth/signup`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({name, email, password, language, plan}) })
     const data = await res.json()
     if (!res.ok) { errEl.textContent = data.error || 'Signup failed'; errEl.style.display = 'block'; return }
@@ -429,11 +429,11 @@ async function signup() {
     localStorage.setItem('rafiq_user', JSON.stringify(currentUser))
 
     // Redirect to Stripe checkout
-    const plan = window._selectedPlan || 'pro'
+    const selectedPlan = window._selectedPlan || "pro"
     const checkoutRes = await fetch(`${API}/api/stripe/checkout`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-      body: JSON.stringify({ plan })
+      body: JSON.stringify({ plan: selectedPlan })
     })
     const checkoutData = await checkoutRes.json()
     if (checkoutData.url) {
