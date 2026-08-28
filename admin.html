@@ -109,6 +109,25 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sa
   .main{margin-left:0}
   .stats-grid{grid-template-columns:1fr 1fr}
 }
+
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;display:none;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal{background:white;border-radius:20px;padding:2rem;width:100%;max-width:500px;box-shadow:0 8px 60px rgba(0,0,0,0.2)}
+.modal-title{font-size:1.2rem;font-weight:800;color:var(--dark);margin-bottom:0.3rem}
+.modal-sub{font-size:13px;color:var(--light);margin-bottom:1.5rem}
+.modal-footer{display:flex;gap:10px;justify-content:flex-end;margin-top:1.5rem}
+.btn-cancel{padding:10px 20px;background:transparent;border:1.5px solid var(--border);border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;color:var(--light)}
+.btn-cancel:hover{border-color:var(--dark);color:var(--dark)}
+.btn-danger{padding:10px 20px;background:#fee;border:1.5px solid #fcc;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;color:#c00}
+.btn-save{padding:10px 20px;background:var(--orange);border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;color:white}
+.btn-save:hover{background:#A0602A}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem}
+.revenue-total{background:var(--dark);border-radius:16px;padding:1.5rem;margin-bottom:1.2rem;display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem}
+.rev-stat{text-align:center}
+.rev-val{font-size:1.8rem;font-weight:800;color:var(--orange);letter-spacing:-1px}
+.rev-label{font-size:11px;color:rgba(255,255,255,0.5);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-top:4px}
+.send-email-btn{padding:6px 14px;background:#E3F4FE;border:1px solid #90CAF9;border-radius:8px;color:#0066CC;font-size:12px;font-weight:600;cursor:pointer}
+.send-email-btn:hover{background:#BBDEFB}
 </style>
 </head>
 <body>
@@ -161,11 +180,10 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sa
       <a class="nav-item" onclick="showPage('password')" id="nav-password">
         <span class="nav-icon">🔑</span> Change Password
       </a>
-            <div class="nav-section">Account</div>
-      <a class="nav-item" onclick="showPage('password')" id="nav-password">
-        <span class="nav-icon">🔑</span> Change Password
+            <div class="nav-section">Management</div>
+      <a class="nav-item" onclick="showPage('revenue')" id="nav-revenue">
+        <span class="nav-icon">💰</span> Revenue
       </a>
-      <div class="nav-section">Management</div>
       <a class="nav-item" onclick="showPage('conversations')" id="nav-conversations">
         <span class="nav-icon">💬</span> Conversations
       </a>
@@ -287,6 +305,36 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sa
         </div>
       </div>
 
+
+      <!-- REVENUE -->
+      <div class="page" id="page-revenue">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Revenue</div>
+            <div class="page-sub">Monthly recurring revenue overview</div>
+          </div>
+        </div>
+        <div class="revenue-total">
+          <div class="rev-stat"><div class="rev-val" id="rev-mrr">$0</div><div class="rev-label">Monthly Revenue</div></div>
+          <div class="rev-stat"><div class="rev-val" id="rev-arr">$0</div><div class="rev-label">Annual Revenue</div></div>
+          <div class="rev-stat"><div class="rev-val" id="rev-avg">$0</div><div class="rev-label">Avg per Customer</div></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-title">Revenue by Plan</span></div>
+          <table class="table">
+            <thead><tr><th>Plan</th><th>Price</th><th>Customers</th><th>Monthly Revenue</th></tr></thead>
+            <tbody id="revenue-table"></tbody>
+          </table>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-title">Paying Customers</span></div>
+          <table class="table">
+            <thead><tr><th>Name</th><th>Email</th><th>Plan</th><th>Status</th><th>Monthly Value</th></tr></thead>
+            <tbody id="paying-table"></tbody>
+          </table>
+        </div>
+      </div>
+
       <!-- PASSWORD -->
       <div class="page" id="page-password">
         <div class="page-header"><div><div class="page-title">Change Password</div><div class="page-sub">Update your admin password</div></div></div>
@@ -307,6 +355,36 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sa
       </div>
 
       
+
+      <!-- REVENUE -->
+      <div class="page" id="page-revenue">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Revenue</div>
+            <div class="page-sub">Monthly recurring revenue overview</div>
+          </div>
+        </div>
+        <div class="revenue-total">
+          <div class="rev-stat"><div class="rev-val" id="rev-mrr">$0</div><div class="rev-label">Monthly Revenue</div></div>
+          <div class="rev-stat"><div class="rev-val" id="rev-arr">$0</div><div class="rev-label">Annual Revenue</div></div>
+          <div class="rev-stat"><div class="rev-val" id="rev-avg">$0</div><div class="rev-label">Avg per Customer</div></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-title">Revenue by Plan</span></div>
+          <table class="table">
+            <thead><tr><th>Plan</th><th>Price</th><th>Customers</th><th>Monthly Revenue</th></tr></thead>
+            <tbody id="revenue-table"></tbody>
+          </table>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-title">Paying Customers</span></div>
+          <table class="table">
+            <thead><tr><th>Name</th><th>Email</th><th>Plan</th><th>Status</th><th>Monthly Value</th></tr></thead>
+            <tbody id="paying-table"></tbody>
+          </table>
+        </div>
+      </div>
+
       <!-- PASSWORD -->
       <div class="page" id="page-password">
         <div class="page-header">
@@ -464,7 +542,11 @@ function customerRow(c, cols = 5) {
       <td><span class="badge ${c.plan}">${c.plan}</span></td>
       <td><span class="dot ${c.plan_status}"></span>${c.plan_status}</td>
       <td>${formatDate(c.created_at)}</td>
-      <td><button onclick="deleteCustomer('${c.id}','${c.email}')" style="padding:5px 12px;background:#fee;border:1px solid #fcc;border-radius:8px;color:#c00;font-size:12px;font-weight:600;cursor:pointer">Delete</button></td>
+      <td style="display:flex;gap:6px">
+        <button onclick="openEditModal('${c.id}','${c.email}','${c.name}','${c.plan}','${c.plan_status}')" style="padding:5px 10px;background:#FEF0E3;border:1px solid #F0CEAD;border-radius:8px;color:var(--orange);font-size:12px;font-weight:600;cursor:pointer">Edit</button>
+        <button onclick="openEmailModal('${c.email}','${c.name}')" class="send-email-btn">Email</button>
+        <button onclick="deleteCustomer('${c.id}','${c.email}')" style="padding:5px 10px;background:#fee;border:1px solid #fcc;border-radius:8px;color:#c00;font-size:12px;font-weight:600;cursor:pointer">Delete</button>
+      </td>
     </tr>`
   }
   return `<tr>
@@ -575,6 +657,129 @@ async function loadConversations() {
 }
 
 
+
+// MODAL HELPERS
+function closeModal(id) { document.getElementById(id).classList.remove('open') }
+function openModal(id) { document.getElementById(id).classList.add('open') }
+
+// EDIT CUSTOMER
+function openEditModal(id, email, name, plan, status) {
+  document.getElementById('edit-customer-id').value = id
+  document.getElementById('edit-modal-email').textContent = email
+  document.getElementById('edit-name').value = name || ''
+  document.getElementById('edit-plan').value = plan
+  document.getElementById('edit-status').value = status
+  document.getElementById('edit-error').style.display = 'none'
+  openModal('edit-modal')
+}
+
+async function saveCustomerEdit() {
+  const id = document.getElementById('edit-customer-id').value
+  const plan = document.getElementById('edit-plan').value
+  const plan_status = document.getElementById('edit-status').value
+  const name = document.getElementById('edit-name').value
+  const errEl = document.getElementById('edit-error')
+  errEl.style.display = 'none'
+  try {
+    const res = await fetch(`${API}/api/admin/customers/${id}`, {
+      method: 'PUT',
+      headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`},
+      body: JSON.stringify({plan, plan_status, name})
+    })
+    const data = await res.json()
+    if (!res.ok) { errEl.textContent = data.error || 'Failed'; errEl.style.display = 'block'; return }
+    closeModal('edit-modal')
+    showNotif('Customer updated ✓')
+    const idx = allCustomers.findIndex(c => c.id === id)
+    if (idx !== -1) { allCustomers[idx].plan = plan; allCustomers[idx].plan_status = plan_status; allCustomers[idx].name = name }
+    renderCustomers(allCustomers)
+    loadDashboard()
+  } catch(e) { errEl.textContent = 'Connection error'; errEl.style.display = 'block' }
+}
+
+// SEND EMAIL
+function openEmailModal(email, name) {
+  document.getElementById('email-modal-to').textContent = `To: ${name || ''} <${email}>`
+  document.getElementById('email-modal-address').value = email
+  document.getElementById('email-subject').value = ''
+  document.getElementById('email-body').value = ''
+  document.getElementById('email-error').style.display = 'none'
+  document.getElementById('email-success').style.display = 'none'
+  openModal('email-modal')
+}
+
+async function sendEmailToCustomer() {
+  const to = document.getElementById('email-modal-address').value
+  const subject = document.getElementById('email-subject').value
+  const body = document.getElementById('email-body').value
+  const errEl = document.getElementById('email-error')
+  const sucEl = document.getElementById('email-success')
+  errEl.style.display = 'none'; sucEl.style.display = 'none'
+  if (!subject || !body) { errEl.textContent = 'Please fill in subject and message'; errEl.style.display = 'block'; return }
+  try {
+    const res = await fetch(`${API}/api/admin/send-email`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`},
+      body: JSON.stringify({to, subject, body})
+    })
+    const data = await res.json()
+    if (!res.ok) { errEl.textContent = data.error || 'Failed to send'; errEl.style.display = 'block'; return }
+    sucEl.textContent = 'Email sent successfully ✓'
+    sucEl.style.display = 'block'
+    setTimeout(() => closeModal('email-modal'), 2000)
+  } catch(e) { errEl.textContent = 'Connection error'; errEl.style.display = 'block' }
+}
+
+// REVENUE
+const PLAN_PRICES = { basic: 19, pro: 39, business: 79 }
+
+function loadRevenue() {
+  if (allCustomers.length === 0) { loadDashboard().then(() => calcRevenue()) }
+  else calcRevenue()
+}
+
+function calcRevenue() {
+  const paying = allCustomers.filter(c => c.plan_status === 'active' || c.plan_status === 'trial')
+  const mrr = paying.reduce((sum, c) => sum + (PLAN_PRICES[c.plan] || 0), 0)
+  document.getElementById('rev-mrr').textContent = `$${mrr}`
+  document.getElementById('rev-arr').textContent = `$${mrr * 12}`
+  document.getElementById('rev-avg').textContent = paying.length ? `$${Math.round(mrr / paying.length)}` : '$0'
+
+  const byPlan = ['basic','pro','business'].map(plan => {
+    const count = paying.filter(c => c.plan === plan).length
+    const revenue = count * PLAN_PRICES[plan]
+    return {plan, price: PLAN_PRICES[plan], count, revenue}
+  })
+
+  document.getElementById('revenue-table').innerHTML = byPlan.map(p => `
+    <tr>
+      <td><span class="badge ${p.plan}">${p.plan}</span></td>
+      <td>$${p.price}/mo</td>
+      <td>${p.count}</td>
+      <td style="font-weight:700;color:var(--orange)">$${p.revenue}/mo</td>
+    </tr>
+  `).join('')
+
+  document.getElementById('paying-table').innerHTML = paying.length
+    ? paying.map(c => `
+      <tr>
+        <td><strong>${c.name || '—'}</strong></td>
+        <td>${c.email}</td>
+        <td><span class="badge ${c.plan}">${c.plan}</span></td>
+        <td><span class="dot ${c.plan_status}"></span>${c.plan_status}</td>
+        <td style="font-weight:700;color:var(--orange)">$${PLAN_PRICES[c.plan] || 0}/mo</td>
+      </tr>
+    `).join('')
+    : '<tr><td colspan="5" class="empty">No paying customers yet</td></tr>'
+}
+
+// Close modal on overlay click
+document.addEventListener('click', e => {
+  if (e.target.classList.contains('modal-overlay')) {
+    document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('open'))
+  }
+})
+
 async function adminChangePassword() {
   const currentPassword = document.getElementById('ap-current').value
   const newPassword = document.getElementById('ap-new').value
@@ -623,5 +828,65 @@ async function loadIntegrations() {
   }
 }
 </script>
+
+<!-- EDIT CUSTOMER MODAL -->
+<div class="modal-overlay" id="edit-modal">
+  <div class="modal">
+    <div class="modal-title">Edit Customer</div>
+    <div class="modal-sub" id="edit-modal-email"></div>
+    <input type="hidden" id="edit-customer-id"/>
+    <div class="form-row">
+      <div>
+        <label class="form-label">Plan</label>
+        <select class="form-input" id="edit-plan">
+          <option value="basic">Basic — $19/mo</option>
+          <option value="pro">Pro — $39/mo</option>
+          <option value="business">Business — $79/mo</option>
+        </select>
+      </div>
+      <div>
+        <label class="form-label">Status</label>
+        <select class="form-input" id="edit-status">
+          <option value="trial">Trial</option>
+          <option value="active">Active</option>
+          <option value="inactive">Inactive</option>
+          <option value="expired">Expired</option>
+        </select>
+      </div>
+    </div>
+    <div style="margin-bottom:1rem">
+      <label class="form-label">Name</label>
+      <input class="form-input" type="text" id="edit-name" placeholder="Customer name"/>
+    </div>
+    <div class="auth-error" id="edit-error"></div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal('edit-modal')">Cancel</button>
+      <button class="btn-save" onclick="saveCustomerEdit()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- SEND EMAIL MODAL -->
+<div class="modal-overlay" id="email-modal">
+  <div class="modal">
+    <div class="modal-title">Send Email</div>
+    <div class="modal-sub" id="email-modal-to"></div>
+    <input type="hidden" id="email-modal-address"/>
+    <div style="margin-bottom:1rem">
+      <label class="form-label">Subject</label>
+      <input class="form-input" type="text" id="email-subject" placeholder="Email subject"/>
+    </div>
+    <div style="margin-bottom:1rem">
+      <label class="form-label">Message</label>
+      <textarea class="form-input" id="email-body" rows="5" placeholder="Write your message..." style="resize:vertical"></textarea>
+    </div>
+    <div class="auth-error" id="email-error"></div>
+    <div class="auth-success" id="email-success" style="background:#E8F5E9;border:1px solid #A5D6A7;border-radius:8px;padding:10px 14px;font-size:13px;color:#2E7D32;margin-bottom:1rem;display:none"></div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal('email-modal')">Cancel</button>
+      <button class="btn-save" onclick="sendEmailToCustomer()">Send Email</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
