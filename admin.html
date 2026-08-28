@@ -131,6 +131,19 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sa
 .rev-label{font-size:11px;color:rgba(255,255,255,0.5);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-top:4px}
 .send-email-btn{padding:6px 14px;background:#E3F4FE;border:1px solid #90CAF9;border-radius:8px;color:#0066CC;font-size:12px;font-weight:600;cursor:pointer}
 .send-email-btn:hover{background:#BBDEFB}
+
+.notif-item{display:flex;align-items:flex-start;gap:14px;padding:1rem 1.5rem;border-bottom:0.5px solid var(--border);transition:background 0.2s}
+.notif-item:hover{background:#FAFAF8}
+.notif-item.unread{background:#FEF8F2}
+.notif-item:last-child{border-bottom:none}
+.notif-icon{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;background:#FEF0E3}
+.notif-content{flex:1}
+.notif-title{font-size:13px;font-weight:600;color:var(--dark);margin-bottom:3px}
+.notif-sub{font-size:12px;color:var(--light)}
+.notif-time{font-size:11px;color:var(--light);white-space:nowrap;margin-left:auto}
+.notif-dot{width:8px;height:8px;border-radius:50%;background:var(--orange);flex-shrink:0;margin-top:5px}
+.usage-bar{height:6px;background:#F0E8DC;border-radius:3px;margin-top:4px;overflow:hidden}
+.usage-bar-fill{height:100%;background:var(--orange);border-radius:3px;transition:width 0.5s ease}
 </style>
 </head>
 <body>
@@ -195,6 +208,12 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sa
       </a>
       <a class="nav-item" onclick="showPage('export')" id="nav-export">
         <span class="nav-icon">📥</span> Export
+      </a>
+      <a class="nav-item" onclick="showPage('notifications')" id="nav-notifications">
+        <span class="nav-icon">🔔</span> Notifications <span id="notif-badge" style="background:#C4783A;color:white;border-radius:20px;font-size:10px;font-weight:700;padding:1px 6px;margin-left:4px;display:none"></span>
+      </a>
+      <a class="nav-item" onclick="showPage('usage')" id="nav-usage">
+        <span class="nav-icon">📈</span> Usage Stats
       </a>
     </div>
 
@@ -316,6 +335,68 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sa
 
 
 
+
+      <!-- NOTIFICATIONS -->
+      <div class="page" id="page-notifications">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Notifications</div>
+            <div class="page-sub">New signups and important events</div>
+          </div>
+          <button class="btn-save" onclick="markAllRead()" style="padding:8px 18px">Mark all read</button>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Recent Events</span>
+          </div>
+          <div id="notifications-list" style="padding:0">
+            <div class="empty" style="padding:2rem">Loading...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- USAGE STATS -->
+      <div class="page" id="page-usage">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Usage Stats</div>
+            <div class="page-sub">Messages and activity per customer</div>
+          </div>
+        </div>
+        <div class="stats-grid" style="grid-template-columns:repeat(3,1fr)">
+          <div class="stat orange">
+            <div class="stat-val" id="usage-total-msgs">—</div>
+            <div class="stat-label">Total Messages</div>
+          </div>
+          <div class="stat">
+            <div class="stat-val" id="usage-today-msgs">—</div>
+            <div class="stat-label">Messages Today</div>
+          </div>
+          <div class="stat">
+            <div class="stat-val" id="usage-avg-msgs">—</div>
+            <div class="stat-label">Avg per Customer</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-title">Usage by Customer</span></div>
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Customer</th>
+                <th>Email</th>
+                <th>Plan</th>
+                <th>Total Messages</th>
+                <th>Today</th>
+                <th>Last Active</th>
+              </tr>
+            </thead>
+            <tbody id="usage-table">
+              <tr><td colspan="6" class="empty">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
       <!-- EXPORT -->
       <div class="page" id="page-export">
         <div class="page-header">
@@ -402,6 +483,68 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sa
 
       
 
+
+
+      <!-- NOTIFICATIONS -->
+      <div class="page" id="page-notifications">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Notifications</div>
+            <div class="page-sub">New signups and important events</div>
+          </div>
+          <button class="btn-save" onclick="markAllRead()" style="padding:8px 18px">Mark all read</button>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Recent Events</span>
+          </div>
+          <div id="notifications-list" style="padding:0">
+            <div class="empty" style="padding:2rem">Loading...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- USAGE STATS -->
+      <div class="page" id="page-usage">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Usage Stats</div>
+            <div class="page-sub">Messages and activity per customer</div>
+          </div>
+        </div>
+        <div class="stats-grid" style="grid-template-columns:repeat(3,1fr)">
+          <div class="stat orange">
+            <div class="stat-val" id="usage-total-msgs">—</div>
+            <div class="stat-label">Total Messages</div>
+          </div>
+          <div class="stat">
+            <div class="stat-val" id="usage-today-msgs">—</div>
+            <div class="stat-label">Messages Today</div>
+          </div>
+          <div class="stat">
+            <div class="stat-val" id="usage-avg-msgs">—</div>
+            <div class="stat-label">Avg per Customer</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-title">Usage by Customer</span></div>
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Customer</th>
+                <th>Email</th>
+                <th>Plan</th>
+                <th>Total Messages</th>
+                <th>Today</th>
+                <th>Last Active</th>
+              </tr>
+            </thead>
+            <tbody id="usage-table">
+              <tr><td colspan="6" class="empty">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
 
       <!-- EXPORT -->
       <div class="page" id="page-export">
@@ -598,6 +741,7 @@ function showAdminApp() {
   document.getElementById('admin-app').style.display = 'block'
   document.getElementById('topbar-email').textContent = adminUser.email
   loadDashboard()
+  setTimeout(loadNotifications, 1000)
 }
 
 function showPage(page) {
@@ -742,6 +886,140 @@ async function loadConversations() {
 
 
 
+
+
+// NOTIFICATIONS
+let notifications = []
+let readNotifs = JSON.parse(localStorage.getItem('rafiq_read_notifs') || '[]')
+
+async function loadNotifications() {
+  try {
+    if (allCustomers.length === 0) await loadDashboard()
+    
+    // Generate notifications from customer data
+    notifications = []
+    
+    // New signups (last 7 days)
+    const weekAgo = Math.floor(Date.now() / 1000) - (7 * 24 * 60 * 60)
+    const newCustomers = allCustomers.filter(c => c.created_at > weekAgo)
+    newCustomers.forEach(c => {
+      notifications.push({
+        id: `signup_${c.id}`,
+        icon: '👤',
+        title: `New signup — ${c.name || c.email}`,
+        sub: `${c.email} joined on ${formatDate(c.created_at)} · Plan: ${c.plan}`,
+        time: c.created_at,
+        type: 'signup'
+      })
+    })
+
+    // Trial ending soon (within 3 days)
+    const threeDays = Math.floor(Date.now() / 1000) + (3 * 24 * 60 * 60)
+    allCustomers.filter(c => c.plan_status === 'trial' && c.trial_ends_at && c.trial_ends_at < threeDays).forEach(c => {
+      const daysLeft = Math.max(0, Math.ceil((c.trial_ends_at * 1000 - Date.now()) / 86400000))
+      notifications.push({
+        id: `trial_${c.id}`,
+        icon: '⚠️',
+        title: `Trial ending — ${c.name || c.email}`,
+        sub: `${daysLeft} day${daysLeft !== 1 ? 's' : ''} left on trial · ${c.email}`,
+        time: c.trial_ends_at - (3 * 24 * 60 * 60),
+        type: 'trial'
+      })
+    })
+
+    // Sort by time desc
+    notifications.sort((a, b) => b.time - a.time)
+
+    // Update badge
+    const unread = notifications.filter(n => !readNotifs.includes(n.id)).length
+    const badge = document.getElementById('notif-badge')
+    if (unread > 0) { badge.textContent = unread; badge.style.display = 'inline' }
+    else badge.style.display = 'none'
+
+    renderNotifications()
+  } catch(e) {
+    document.getElementById('notifications-list').innerHTML = '<div class="empty" style="padding:2rem">Error loading notifications</div>'
+  }
+}
+
+function renderNotifications() {
+  const el = document.getElementById('notifications-list')
+  if (notifications.length === 0) {
+    el.innerHTML = '<div class="empty" style="padding:2rem">No notifications yet</div>'
+    return
+  }
+  el.innerHTML = notifications.map(n => {
+    const isUnread = !readNotifs.includes(n.id)
+    return `<div class="notif-item ${isUnread ? 'unread' : ''}" onclick="markRead('${n.id}')">
+      <div class="notif-icon">${n.icon}</div>
+      <div class="notif-content">
+        <div class="notif-title">${n.title}</div>
+        <div class="notif-sub">${n.sub}</div>
+      </div>
+      <div class="notif-time">${formatDate(n.time)}</div>
+      ${isUnread ? '<div class="notif-dot"></div>' : ''}
+    </div>`
+  }).join('')
+}
+
+function markRead(id) {
+  if (!readNotifs.includes(id)) {
+    readNotifs.push(id)
+    localStorage.setItem('rafiq_read_notifs', JSON.stringify(readNotifs))
+    renderNotifications()
+    const unread = notifications.filter(n => !readNotifs.includes(n.id)).length
+    const badge = document.getElementById('notif-badge')
+    if (unread > 0) { badge.textContent = unread; badge.style.display = 'inline' }
+    else badge.style.display = 'none'
+  }
+}
+
+function markAllRead() {
+  readNotifs = notifications.map(n => n.id)
+  localStorage.setItem('rafiq_read_notifs', JSON.stringify(readNotifs))
+  renderNotifications()
+  document.getElementById('notif-badge').style.display = 'none'
+  showNotif('All marked as read ✓')
+}
+
+// USAGE STATS
+async function loadUsage() {
+  try {
+    const res = await fetch(`${API}/api/admin/usage`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    })
+    const data = await res.json()
+    const usage = data.usage || []
+
+    const totalMsgs = usage.reduce((s, u) => s + (u.total_messages || 0), 0)
+    const todayMsgs = usage.reduce((s, u) => s + (u.today_messages || 0), 0)
+    const avg = usage.length ? Math.round(totalMsgs / usage.length) : 0
+
+    document.getElementById('usage-total-msgs').textContent = totalMsgs
+    document.getElementById('usage-today-msgs').textContent = todayMsgs
+    document.getElementById('usage-avg-msgs').textContent = avg
+
+    const maxMsgs = Math.max(...usage.map(u => u.total_messages || 0), 1)
+
+    document.getElementById('usage-table').innerHTML = usage.length
+      ? usage.sort((a, b) => (b.total_messages || 0) - (a.total_messages || 0)).map(u => `
+        <tr>
+          <td><strong>${u.name || '—'}</strong></td>
+          <td>${u.email}</td>
+          <td><span class="badge ${u.plan}">${u.plan}</span></td>
+          <td>
+            <div>${u.total_messages || 0} messages</div>
+            <div class="usage-bar"><div class="usage-bar-fill" style="width:${Math.round(((u.total_messages||0)/maxMsgs)*100)}%"></div></div>
+          </td>
+          <td>${u.today_messages || 0}</td>
+          <td>${u.last_active ? formatDate(u.last_active) : '—'}</td>
+        </tr>
+      `).join('')
+      : '<tr><td colspan="6" class="empty">No usage data yet</td></tr>'
+  } catch(e) {
+    document.getElementById('usage-table').innerHTML = '<tr><td colspan="6" class="empty">Error loading usage data</td></tr>'
+  }
+}
 
 // CUSTOMER DETAIL
 async function openDetailModal(customer) {
