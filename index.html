@@ -91,6 +91,10 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sa
 @keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
 .divider{height:0.5px;background:var(--border);margin:1.5rem 0}
 @media(max-width:768px){.sidebar{display:none}.main{margin-left:0}.grid-3{grid-template-columns:1fr}}
+
+.plan-option{padding:1rem 1.2rem;border:1.5px solid #E8DDD4;border-radius:14px;cursor:pointer;transition:all 0.2s}
+.plan-option:hover{border-color:var(--orange);background:#FEF8F2}
+.plan-option.selected{border-color:var(--orange);background:#FEF0E3}
 </style>
 </head>
 <body>
@@ -117,16 +121,54 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sa
       <div class="auth-switch">Don't have an account? <a onclick="showSignup()">Create one</a></div>
     </div>
 
-    <!-- SIGNUP -->
+    <!-- PLAN SELECTION -->
+    <div id="plan-form" style="display:none">
+      <div class="auth-title">Choose your plan</div>
+      <div class="auth-sub">Select the plan that fits you best</div>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:1.5rem">
+        <div class="plan-option" id="plan-basic" onclick="selectPlan('basic')">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <div style="font-size:15px;font-weight:700;color:var(--dark)">Basic</div>
+              <div style="font-size:12px;color:var(--light);margin-top:2px">Email reading · Manual only · 1 account</div>
+            </div>
+            <div style="font-size:1.2rem;font-weight:800;color:var(--dark)">$19<span style="font-size:12px;font-weight:500">/mo</span></div>
+          </div>
+        </div>
+        <div class="plan-option selected" id="plan-pro" onclick="selectPlan('pro')">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <div style="display:flex;align-items:center;gap:8px"><span style="font-size:15px;font-weight:700;color:var(--dark)">Pro</span><span style="background:var(--orange);color:white;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px">POPULAR</span></div>
+              <div style="font-size:12px;color:var(--light);margin-top:2px">Full email + calendar · Proactive · Memory</div>
+            </div>
+            <div style="font-size:1.2rem;font-weight:800;color:var(--orange)">$39<span style="font-size:12px;font-weight:500">/mo</span></div>
+          </div>
+        </div>
+        <div class="plan-option" id="plan-business" onclick="selectPlan('business')">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <div style="font-size:15px;font-weight:700;color:var(--dark)">Business</div>
+              <div style="font-size:12px;color:var(--light);margin-top:2px">Everything · 3 assistants · 24/7 monitoring</div>
+            </div>
+            <div style="font-size:1.2rem;font-weight:800;color:var(--dark)">$79<span style="font-size:12px;font-weight:500">/mo</span></div>
+          </div>
+        </div>
+      </div>
+      <button class="btn-primary" onclick="showSignupDetails()">Continue →</button>
+      <div class="auth-switch">Already have an account? <a onclick="showLogin()">Sign in</a></div>
+    </div>
+
+    <!-- SIGNUP DETAILS -->
     <div id="signup-form" style="display:none">
       <div class="auth-title">Create your account</div>
-      <div class="auth-sub">Start your 14-day free trial</div>
+      <div class="auth-sub" id="signup-plan-label">Pro Plan — $39/month</div>
       <div class="auth-error" id="signup-error"></div>
       <div class="form-group"><label class="form-label">Your name</label><input class="form-input" type="text" id="signup-name" placeholder="Alex"/></div>
       <div class="form-group"><label class="form-label">Email</label><input class="form-input" type="email" id="signup-email" placeholder="your@email.com"/></div>
       <div class="form-group"><label class="form-label">Password</label><input class="form-input" type="password" id="signup-password" placeholder="At least 8 characters"/></div>
       <div class="form-group"><label class="form-label">Language</label><select class="form-input" id="signup-language"><option value="ar">العربية (Arabic)</option><option value="en">English</option></select></div>
-      <button class="btn-primary" onclick="signup()">Create account →</button>
+      <button class="btn-primary" onclick="signup()">Create account & pay →</button>
+      <div class="auth-switch"><a onclick="showPlanSelection()">← Change plan</a></div>
       <div class="auth-switch">Already have an account? <a onclick="showLogin()">Sign in</a></div>
     </div>
 
@@ -288,15 +330,33 @@ function showNotif(msg) {
 
 // AUTH FORMS
 function showLogin() {
-  ['login-form','signup-form','forgot-form','reset-form'].forEach(id => document.getElementById(id).style.display = 'none')
+  ['login-form','signup-form','forgot-form','reset-form','plan-form'].forEach(id => document.getElementById(id).style.display = 'none')
   document.getElementById('login-form').style.display = 'block'
 }
 function showSignup() {
-  ['login-form','signup-form','forgot-form','reset-form'].forEach(id => document.getElementById(id).style.display = 'none')
+  ['login-form','signup-form','forgot-form','reset-form','plan-form'].forEach(id => document.getElementById(id).style.display = 'none')
+  document.getElementById('plan-form').style.display = 'block'
+}
+
+function showPlanSelection() {
+  ['login-form','signup-form','forgot-form','reset-form','plan-form'].forEach(id => document.getElementById(id).style.display = 'none')
+  document.getElementById('plan-form').style.display = 'block'
+}
+
+function showSignupDetails() {
+  const planLabels = { basic: 'Basic Plan — $19/month', pro: 'Pro Plan — $39/month', business: 'Business Plan — $79/month' }
+  document.getElementById('signup-plan-label').textContent = planLabels[window._selectedPlan || 'pro']
+  ;['login-form','signup-form','forgot-form','reset-form','plan-form'].forEach(id => document.getElementById(id).style.display = 'none')
   document.getElementById('signup-form').style.display = 'block'
 }
+
+function selectPlan(plan) {
+  window._selectedPlan = plan
+  document.querySelectorAll('.plan-option').forEach(el => el.classList.remove('selected'))
+  document.getElementById(`plan-${plan}`).classList.add('selected')
+}
 function showForgot() {
-  ['login-form','signup-form','forgot-form','reset-form'].forEach(id => document.getElementById(id).style.display = 'none')
+  ['login-form','signup-form','forgot-form','reset-form','plan-form'].forEach(id => document.getElementById(id).style.display = 'none')
   document.getElementById('forgot-form').style.display = 'block'
 }
 function showResetForm(token) {
@@ -333,7 +393,8 @@ async function signup() {
   errEl.style.display = 'none'
   if (!name || !email || !password) { errEl.textContent = 'Please fill in all fields'; errEl.style.display = 'block'; return }
   try {
-    const res = await fetch(`${API}/api/auth/signup`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({name, email, password, language}) })
+    const plan = window._selectedPlan || 'pro'
+  const res = await fetch(`${API}/api/auth/signup`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({name, email, password, language, plan}) })
     const data = await res.json()
     if (!res.ok) { errEl.textContent = data.error || 'Signup failed'; errEl.style.display = 'block'; return }
     token = data.token; currentUser = data.customer
