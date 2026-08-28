@@ -396,7 +396,6 @@ async function login() {
     localStorage.setItem('rafiq_user', JSON.stringify(currentUser))
 
     // Redirect to Stripe checkout
-    const plan = window._selectedPlan || 'pro'
     const checkoutRes = await fetch(`${API}/api/stripe/checkout`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
@@ -429,7 +428,6 @@ async function signup() {
     localStorage.setItem('rafiq_user', JSON.stringify(currentUser))
 
     // Redirect to Stripe checkout
-    const plan = window._selectedPlan || 'pro'
     const checkoutRes = await fetch(`${API}/api/stripe/checkout`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
