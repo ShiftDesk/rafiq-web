@@ -278,6 +278,7 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sa
             <div class="page-title">Customer Accounts</div>
             <div class="page-sub">Manage all Rafiq customers</div>
           </div>
+          <button class="btn-save" onclick="openAddCustomerModal()" style="padding:10px 20px;font-size:13px">+ Add Customer</button>
         </div>
         <div class="search-bar">
           <input class="search-input" id="customer-search" placeholder="Search by name or email..." oninput="filterCustomers()"/>
@@ -1118,6 +1119,78 @@ async function loadIntegrations() {
     document.getElementById('integrations-table').innerHTML = '<tr><td colspan="4" class="empty">Error loading data</td></tr>'
   }
 }
+
+function openAddCustomerModal() {
+  document.getElementById('add-name').value = ''
+  document.getElementById('add-email').value = ''
+  document.getElementById('add-password').value = ''
+  document.getElementById('add-language').value = 'ar'
+  document.getElementById('add-plan').value = 'pro'
+  document.getElementById('add-status').value = 'active'
+  document.getElementById('add-error').style.display = 'none'
+  document.getElementById('add-success').style.display = 'none'
+  openModal('add-customer-modal')
+}
+
+async function addCustomer() {
+  const name = document.getElementById('add-name').value.trim()
+  const email = document.getElementById('add-email').value.trim()
+  const password = document.getElementById('add-password').value
+  const language = document.getElementById('add-language').value
+  const plan = document.getElementById('add-plan').value
+  const plan_status = document.getElementById('add-status').value
+  const errEl = document.getElementById('add-error')
+  const sucEl = document.getElementById('add-success')
+  errEl.style.display = 'none'
+  sucEl.style.display = 'none'
+
+  if (!name || !email || !password) {
+    errEl.textContent = 'Please fill in all required fields'
+    errEl.style.display = 'block'
+    return
+  }
+  if (password.length < 8) {
+    errEl.textContent = 'Password must be at least 8 characters'
+    errEl.style.display = 'block'
+    return
+  }
+
+  try {
+    // 1. Sign up the customer
+    const signupRes = await fetch(`${API}/api/auth/signup`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, email, password, language, plan })
+    })
+    const signupData = await signupRes.json()
+    if (!signupRes.ok) {
+      errEl.textContent = signupData.error || 'Failed to create account'
+      errEl.style.display = 'block'
+      return
+    }
+
+    // 2. Set the correct plan status via admin endpoint
+    const customerId = signupData.customer.id
+    const updateRes = await fetch(`${API}/api/admin/customers/${customerId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+      body: JSON.stringify({ plan, plan_status, name })
+    })
+
+    sucEl.textContent = `Customer ${name} (${email}) created successfully ✓`
+    sucEl.style.display = 'block'
+    showNotif('Customer added ✓')
+    
+    // Reload customers list
+    await loadDashboard()
+    renderCustomers(allCustomers)
+    
+    setTimeout(() => closeModal('add-customer-modal'), 2000)
+  } catch(e) {
+    errEl.textContent = 'Connection error. Try again.'
+    errEl.style.display = 'block'
+  }
+}
 </script>
 
 <!-- EDIT CUSTOMER MODAL -->
@@ -1201,6 +1274,58 @@ async function loadIntegrations() {
     <div style="font-size:12px;font-weight:700;color:var(--light);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px">Recent Conversations</div>
     <div id="detail-convos" style="max-height:300px;overflow-y:auto;background:#FAFAF8;border-radius:12px;padding:1rem">
       Loading...
+    </div>
+  </div>
+</div>
+
+
+<!-- ADD CUSTOMER MODAL -->
+<div class="modal-overlay" id="add-customer-modal">
+  <div class="modal" style="max-width:480px">
+    <div class="modal-title">Add Customer</div>
+    <div class="modal-sub">Manually create a customer account</div>
+    <div style="margin-bottom:1rem">
+      <label class="form-label">Full Name</label>
+      <input class="form-input" type="text" id="add-name" placeholder="Customer name"/>
+    </div>
+    <div style="margin-bottom:1rem">
+      <label class="form-label">Email</label>
+      <input class="form-input" type="email" id="add-email" placeholder="customer@email.com"/>
+    </div>
+    <div style="margin-bottom:1rem">
+      <label class="form-label">Password</label>
+      <input class="form-input" type="password" id="add-password" placeholder="Min 8 characters"/>
+    </div>
+    <div style="margin-bottom:1rem">
+      <label class="form-label">Language</label>
+      <select class="form-input" id="add-language">
+        <option value="ar">العربية (Arabic)</option>
+        <option value="en">English</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <div>
+        <label class="form-label">Plan</label>
+        <select class="form-input" id="add-plan">
+          <option value="basic">Basic — $19/mo</option>
+          <option value="pro">Pro — $39/mo</option>
+          <option value="business">Business — $79/mo</option>
+        </select>
+      </div>
+      <div>
+        <label class="form-label">Status</label>
+        <select class="form-input" id="add-status">
+          <option value="active">Active</option>
+          <option value="trial">Trial</option>
+          <option value="inactive">Inactive</option>
+        </select>
+      </div>
+    </div>
+    <div class="auth-error" id="add-error"></div>
+    <div class="auth-success" id="add-success"></div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal('add-customer-modal')">Cancel</button>
+      <button class="btn-save" onclick="addCustomer()">Add Customer</button>
     </div>
   </div>
 </div>
