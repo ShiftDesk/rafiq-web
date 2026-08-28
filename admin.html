@@ -144,6 +144,11 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sa
 .notif-dot{width:8px;height:8px;border-radius:50%;background:var(--orange);flex-shrink:0;margin-top:5px}
 .usage-bar{height:6px;background:#F0E8DC;border-radius:3px;margin-top:4px;overflow:hidden}
 .usage-bar-fill{height:100%;background:var(--orange);border-radius:3px;transition:width 0.5s ease}
+.auth-error{background:#FEE;border:1px solid #FCC;border-radius:8px;padding:10px 14px;font-size:13px;color:#C00;margin-bottom:1rem;display:none}
+.auth-success{background:#E8F5E9;border:1px solid #A5D6A7;border-radius:8px;padding:10px 14px;font-size:13px;color:#2E7D32;margin-bottom:1rem;display:none}
+.form-input{width:100%;padding:13px 16px;border:1.5px solid #E8DDD4;border-radius:12px;font-size:14px;color:var(--dark);outline:none;transition:border-color 0.2s;background:white}
+.form-input:focus{border-color:var(--orange)}
+.form-label{font-size:11px;font-weight:700;color:var(--light);letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:6px}
 </style>
 </head>
 <body>
@@ -485,183 +490,7 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sa
 
 
 
-      <!-- NOTIFICATIONS -->
-      <div class="page" id="page-notifications">
-        <div class="page-header">
-          <div>
-            <div class="page-title">Notifications</div>
-            <div class="page-sub">New signups and important events</div>
-          </div>
-          <button class="btn-save" onclick="markAllRead()" style="padding:8px 18px">Mark all read</button>
-        </div>
-        <div class="card">
-          <div class="card-header">
-            <span class="card-title">Recent Events</span>
-          </div>
-          <div id="notifications-list" style="padding:0">
-            <div class="empty" style="padding:2rem">Loading...</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- USAGE STATS -->
-      <div class="page" id="page-usage">
-        <div class="page-header">
-          <div>
-            <div class="page-title">Usage Stats</div>
-            <div class="page-sub">Messages and activity per customer</div>
-          </div>
-        </div>
-        <div class="stats-grid" style="grid-template-columns:repeat(3,1fr)">
-          <div class="stat orange">
-            <div class="stat-val" id="usage-total-msgs">—</div>
-            <div class="stat-label">Total Messages</div>
-          </div>
-          <div class="stat">
-            <div class="stat-val" id="usage-today-msgs">—</div>
-            <div class="stat-label">Messages Today</div>
-          </div>
-          <div class="stat">
-            <div class="stat-val" id="usage-avg-msgs">—</div>
-            <div class="stat-label">Avg per Customer</div>
-          </div>
-        </div>
-        <div class="card">
-          <div class="card-header"><span class="card-title">Usage by Customer</span></div>
-          <table class="table">
-            <thead>
-              <tr>
-                <th>Customer</th>
-                <th>Email</th>
-                <th>Plan</th>
-                <th>Total Messages</th>
-                <th>Today</th>
-                <th>Last Active</th>
-              </tr>
-            </thead>
-            <tbody id="usage-table">
-              <tr><td colspan="6" class="empty">Loading...</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- EXPORT -->
-      <div class="page" id="page-export">
-        <div class="page-header">
-          <div>
-            <div class="page-title">Export Data</div>
-            <div class="page-sub">Download your customer data as CSV</div>
-          </div>
-        </div>
-        <div class="card" style="max-width:600px">
-          <div class="card-header"><span class="card-title">Export Options</span></div>
-          <div style="padding:1.5rem;display:flex;flex-direction:column;gap:1rem">
-            <div style="display:flex;align-items:center;justify-content:space-between;padding:1rem;border:1px solid var(--border);border-radius:12px">
-              <div>
-                <div style="font-size:14px;font-weight:600;color:var(--dark)">All Customers</div>
-                <div style="font-size:12px;color:var(--light);margin-top:2px">Name, email, plan, status, join date</div>
-              </div>
-              <button class="btn-save" onclick="exportCSV('customers')">Download CSV</button>
-            </div>
-            <div style="display:flex;align-items:center;justify-content:space-between;padding:1rem;border:1px solid var(--border);border-radius:12px">
-              <div>
-                <div style="font-size:14px;font-weight:600;color:var(--dark)">Active Customers Only</div>
-                <div style="font-size:12px;color:var(--light);margin-top:2px">Customers on active or trial plans</div>
-              </div>
-              <button class="btn-save" onclick="exportCSV('active')">Download CSV</button>
-            </div>
-            <div style="display:flex;align-items:center;justify-content:space-between;padding:1rem;border:1px solid var(--border);border-radius:12px">
-              <div>
-                <div style="font-size:14px;font-weight:600;color:var(--dark)">Revenue Report</div>
-                <div style="font-size:12px;color:var(--light);margin-top:2px">Plan, monthly value per customer</div>
-              </div>
-              <button class="btn-save" onclick="exportCSV('revenue')">Download CSV</button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- REVENUE -->
-      <div class="page" id="page-revenue">
-        <div class="page-header">
-          <div>
-            <div class="page-title">Revenue</div>
-            <div class="page-sub">Monthly recurring revenue overview</div>
-          </div>
-        </div>
-        <div class="revenue-total">
-          <div class="rev-stat"><div class="rev-val" id="rev-mrr">$0</div><div class="rev-label">Monthly Revenue</div></div>
-          <div class="rev-stat"><div class="rev-val" id="rev-arr">$0</div><div class="rev-label">Annual Revenue</div></div>
-          <div class="rev-stat"><div class="rev-val" id="rev-avg">$0</div><div class="rev-label">Avg per Customer</div></div>
-        </div>
-        <div class="card">
-          <div class="card-header"><span class="card-title">Revenue by Plan</span></div>
-          <table class="table">
-            <thead><tr><th>Plan</th><th>Price</th><th>Customers</th><th>Monthly Revenue</th></tr></thead>
-            <tbody id="revenue-table"></tbody>
-          </table>
-        </div>
-        <div class="card">
-          <div class="card-header"><span class="card-title">Paying Customers</span></div>
-          <table class="table">
-            <thead><tr><th>Name</th><th>Email</th><th>Plan</th><th>Status</th><th>Monthly Value</th></tr></thead>
-            <tbody id="paying-table"></tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- PASSWORD -->
-      <div class="page" id="page-password">
-        <div class="page-header">
-          <div>
-            <div class="page-title">Change Password</div>
-            <div class="page-sub">Update your admin password</div>
-          </div>
-        </div>
-        <div class="card" style="max-width:480px">
-          <div class="card-header"><span class="card-title">New Password</span></div>
-          <div style="padding:1.5rem">
-            <div class="error" id="ap-error"></div>
-            <div style="background:#E8F5E9;border:1px solid #A5D6A7;border-radius:8px;padding:10px 14px;font-size:13px;color:#2E7D32;margin-bottom:1rem;display:none" id="ap-success"></div>
-            <label class="form-label">Current Password</label>
-            <input class="form-input" type="password" id="ap-current" placeholder="Enter current password"/>
-            <label class="form-label" style="margin-top:1rem">New Password</label>
-            <input class="form-input" type="password" id="ap-new" placeholder="At least 8 characters"/>
-            <label class="form-label" style="margin-top:1rem">Confirm New Password</label>
-            <input class="form-input" type="password" id="ap-confirm" placeholder="Repeat new password" style="margin-bottom:1.5rem"/>
-            <button class="btn" onclick="adminChangePassword()">Change Password</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- INTEGRATIONS -->
-      <div class="page" id="page-integrations">
-        <div class="page-header">
-          <div>
-            <div class="page-title">Integrations</div>
-            <div class="page-sub">Customer Gmail and Calendar connections</div>
-          </div>
-        </div>
-        <div class="card">
-          <div class="card-header">
-            <span class="card-title">Connected Accounts</span>
-          </div>
-          <table class="table">
-            <thead>
-              <tr>
-                <th>Customer</th>
-                <th>Type</th>
-                <th>Email</th>
-                <th>Connected</th>
-              </tr>
-            </thead>
-            <tbody id="integrations-table">
-              <tr><td colspan="4" class="empty">Loading...</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
+   
 
     </div>
   </div>
@@ -752,6 +581,9 @@ function showPage(page) {
   if (page === 'customers') loadCustomers()
   if (page === 'conversations') loadConversations()
   if (page === 'integrations') loadIntegrations()
+  if (page === 'revenue') loadRevenue()
+  if (page === 'usage') loadUsage()
+  if (page === 'notifications') loadNotifications()
 }
 
 function formatDate(ts) {
