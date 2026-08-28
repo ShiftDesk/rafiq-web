@@ -259,6 +259,7 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sa
                 <th>Plan</th>
                 <th>Status</th>
                 <th>Joined</th>
+                <th>Action</th>
               </tr>
             </thead>
             <tbody id="customers-table">
@@ -463,6 +464,7 @@ function customerRow(c, cols = 5) {
       <td><span class="badge ${c.plan}">${c.plan}</span></td>
       <td><span class="dot ${c.plan_status}"></span>${c.plan_status}</td>
       <td>${formatDate(c.created_at)}</td>
+      <td><button onclick="deleteCustomer('${c.id}','${c.email}')" style="padding:5px 12px;background:#fee;border:1px solid #fcc;border-radius:8px;color:#c00;font-size:12px;font-weight:600;cursor:pointer">Delete</button></td>
     </tr>`
   }
   return `<tr>
@@ -497,6 +499,23 @@ async function loadDashboard() {
   } catch(e) {
     document.getElementById('dashboard-customers').innerHTML = '<tr><td colspan="5" class="empty">Error loading data</td></tr>'
   }
+}
+
+
+async function deleteCustomer(id, email) {
+  if (!confirm(`Delete customer ${email}? This cannot be undone.`)) return
+  try {
+    const res = await fetch(`${API}/api/admin/customers/${id}`, {
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${token}` }
+    })
+    const data = await res.json()
+    if (!res.ok) { showNotif('Error: ' + (data.error || 'Failed to delete')); return }
+    showNotif('Customer deleted ✓')
+    allCustomers = allCustomers.filter(c => c.id !== id)
+    renderCustomers(allCustomers)
+    document.getElementById('stat-total').textContent = allCustomers.length
+  } catch(e) { showNotif('Connection error') }
 }
 
 async function loadCustomers() {
