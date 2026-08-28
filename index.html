@@ -117,7 +117,7 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sa
       <div class="form-group"><label class="form-label">Email</label><input class="form-input" type="email" id="login-email" placeholder="your@email.com"/></div>
       <div class="form-group"><label class="form-label">Password</label><input class="form-input" type="password" id="login-password" placeholder="••••••••" onkeydown="if(event.key==='Enter')login()"/></div>
       <button class="btn-primary" onclick="login()">Sign in →</button>
-      <div class="auth-switch" style="margin-top:0.8rem"><a onclick="showForgot()">Forgot password?</a></div>
+      <div class="auth-switch" style="margin-top:0.8rem"><a href="#" onclick="showForgot();return false;">Forgot password?</a></div>
       <div class="auth-switch">Don't have an account? <a href="#" onclick="showSignup();return false;">Create one</a></div>
     </div>
 
@@ -155,7 +155,7 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sa
         </div>
       </div>
       <button class="btn-primary" onclick="showSignupDetails()">Continue →</button>
-      <div class="auth-switch">Already have an account? <a onclick="showLogin()">Sign in</a></div>
+      <div class="auth-switch">Already have an account? <a href="#" onclick="showLogin();return false;">Sign in</a></div>
     </div>
 
     <!-- SIGNUP DETAILS -->
@@ -168,8 +168,8 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sa
       <div class="form-group"><label class="form-label">Password</label><input class="form-input" type="password" id="signup-password" placeholder="At least 8 characters"/></div>
       <div class="form-group"><label class="form-label">Language</label><select class="form-input" id="signup-language"><option value="ar">العربية (Arabic)</option><option value="en">English</option></select></div>
       <button class="btn-primary" onclick="signup()">Create account & pay →</button>
-      <div class="auth-switch"><a onclick="showPlanSelection()">← Change plan</a></div>
-      <div class="auth-switch">Already have an account? <a onclick="showLogin()">Sign in</a></div>
+      <div class="auth-switch"><a href="#" onclick="showPlanSelection();return false;">← Change plan</a></div>
+      <div class="auth-switch">Already have an account? <a href="#" onclick="showLogin();return false;">Sign in</a></div>
     </div>
 
     <!-- FORGOT PASSWORD -->
@@ -180,7 +180,7 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sa
       <div class="auth-success" id="forgot-success"></div>
       <div class="form-group"><label class="form-label">Email</label><input class="form-input" type="email" id="forgot-email" placeholder="your@email.com"/></div>
       <button class="btn-primary" onclick="forgotPassword()">Send reset link →</button>
-      <div class="auth-switch"><a onclick="showLogin()">← Back to sign in</a></div>
+      <div class="auth-switch"><a href="#" onclick="showLogin();return false;">← Back to sign in</a></div>
     </div>
 
     <!-- RESET PASSWORD -->
