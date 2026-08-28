@@ -395,19 +395,6 @@ async function login() {
     localStorage.setItem('rafiq_token', token)
     localStorage.setItem('rafiq_user', JSON.stringify(currentUser))
 
-    // Redirect to Stripe checkout
-    const selectedPlan = window._selectedPlan || "pro"
-    const checkoutRes = await fetch(`${API}/api/stripe/checkout`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-      body: JSON.stringify({ plan: selectedPlan })
-    })
-    const checkoutData = await checkoutRes.json()
-    if (checkoutData.url) {
-      window.location.href = checkoutData.url
-    } else {
-      showApp()
-    }
   } catch(e) { errEl.textContent = 'Connection error'; errEl.style.display = 'block' }
 }
 
