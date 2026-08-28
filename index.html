@@ -421,7 +421,7 @@ async function signup() {
   if (!name || !email || !password) { errEl.textContent = 'Please fill in all fields'; errEl.style.display = 'block'; return }
   try {
     const selectedPlan = window._selectedPlan || "pro"
-  const res = await fetch(`${API}/api/auth/signup`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({name, email, password, language, plan}) })
+  const res = await fetch(`${API}/api/auth/signup`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({name, email, password, language, plan: selectedPlan}) })
     const data = await res.json()
     if (!res.ok) { errEl.textContent = data.error || 'Signup failed'; errEl.style.display = 'block'; return }
     token = data.token; currentUser = data.customer
