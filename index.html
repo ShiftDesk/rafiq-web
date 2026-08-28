@@ -501,12 +501,14 @@ function showApp() {
   document.getElementById('settings-name').value = name
   document.getElementById('settings-language').value = currentUser.language || 'ar'
   // Show pending message if not active
-  if (currentUser.plan_status === 'pending') {
-    const lang = currentUser.language === 'ar'
-    const msgEl = document.getElementById('welcome-msg')
-    msgEl.innerHTML = lang
-      ? `مرحبا! حسابك في انتظار الدفع.<br><br><button onclick="completePendingPayment()" style="padding:12px 24px;background:#C4783A;color:white;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;margin-top:8px">أكمل الدفع الآن →</button>`
-      : `Hi! Your account is pending payment.<br><br><button onclick="completePendingPayment()" style="padding:12px 24px;background:#C4783A;color:white;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;margin-top:8px">Complete payment now →</button>`
+  if (currentUser.plan_status !== 'active') {
+    // Not paid - sign out and show login
+    localStorage.removeItem('rafiq_token')
+    localStorage.removeItem('rafiq_user')
+    token = null
+    currentUser = null
+    document.getElementById('app').style.display = 'none'
+    document.getElementById('auth-page').style.display = 'flex'
     return
   }
   document.getElementById('welcome-msg').textContent = currentUser.language === 'ar'
