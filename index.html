@@ -421,7 +421,7 @@ async function signup() {
   if (!name || !email || !password) { errEl.textContent = 'Please fill in all fields'; errEl.style.display = 'block'; return }
   try {
     const selectedPlan = window._selectedPlan || "pro"
-  const res = await fetch(`${API}/api/auth/signup`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({name, email, password, language, plan: selectedPlan}) })
+    const res = await fetch(`${API}/api/auth/signup`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({name, email, password, language, plan: selectedPlan}) })
     const data = await res.json()
     if (!res.ok) { errEl.textContent = data.error || 'Signup failed'; errEl.style.display = 'block'; return }
     token = data.token; currentUser = data.customer
@@ -429,7 +429,6 @@ async function signup() {
     localStorage.setItem('rafiq_user', JSON.stringify(currentUser))
 
     // Redirect to Stripe checkout
-    const selectedPlan = window._selectedPlan || "pro"
     const checkoutRes = await fetch(`${API}/api/stripe/checkout`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
