@@ -318,7 +318,13 @@ window.onload = () => {
     showResetForm(resetToken)
     return
   }
-  if (token && currentUser) showApp()
+  if (token && currentUser) {
+    if (currentUser.plan_status !== "active") {
+      fetch(`${API}/api/stripe/checkout`, {method:"POST",headers:{"Content-Type":"application/json","Authorization":`Bearer ${token}`},body:JSON.stringify({plan:currentUser.plan||"basic"})}).then(r=>r.json()).then(d=>{if(d.url)window.location.href=d.url})
+      return
+    }
+    showApp()
+  }
 
 // Handle Stripe success redirect
 if (window.location.pathname === '/success') {
