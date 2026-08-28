@@ -117,8 +117,8 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sa
       <div class="form-group"><label class="form-label">Email</label><input class="form-input" type="email" id="login-email" placeholder="your@email.com"/></div>
       <div class="form-group"><label class="form-label">Password</label><input class="form-input" type="password" id="login-password" placeholder="••••••••" onkeydown="if(event.key==='Enter')login()"/></div>
       <button class="btn-primary" onclick="login()">Sign in →</button>
-      <div class="auth-switch" style="margin-top:0.8rem"><a href="#" onclick="showForgot();return false;">Forgot password?</a></div>
-      <div class="auth-switch">Don't have an account? <a href="#" onclick="showSignup();return false;">Create one</a></div>
+      <div class="auth-switch" style="margin-top:0.8rem"><a onclick="showForgot()">Forgot password?</a></div>
+      <div class="auth-switch">Don't have an account? <a onclick="showSignup()">Create one</a></div>
     </div>
 
     <!-- PLAN SELECTION -->
@@ -155,7 +155,7 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sa
         </div>
       </div>
       <button class="btn-primary" onclick="showSignupDetails()">Continue →</button>
-      <div class="auth-switch">Already have an account? <a href="#" onclick="showLogin();return false;">Sign in</a></div>
+      <div class="auth-switch">Already have an account? <a onclick="showLogin()">Sign in</a></div>
     </div>
 
     <!-- SIGNUP DETAILS -->
@@ -168,8 +168,8 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sa
       <div class="form-group"><label class="form-label">Password</label><input class="form-input" type="password" id="signup-password" placeholder="At least 8 characters"/></div>
       <div class="form-group"><label class="form-label">Language</label><select class="form-input" id="signup-language"><option value="ar">العربية (Arabic)</option><option value="en">English</option></select></div>
       <button class="btn-primary" onclick="signup()">Create account & pay →</button>
-      <div class="auth-switch"><a href="#" onclick="showPlanSelection();return false;">← Change plan</a></div>
-      <div class="auth-switch">Already have an account? <a href="#" onclick="showLogin();return false;">Sign in</a></div>
+      <div class="auth-switch"><a onclick="showPlanSelection()">← Change plan</a></div>
+      <div class="auth-switch">Already have an account? <a onclick="showLogin()">Sign in</a></div>
     </div>
 
     <!-- FORGOT PASSWORD -->
@@ -395,6 +395,19 @@ async function login() {
     localStorage.setItem('rafiq_token', token)
     localStorage.setItem('rafiq_user', JSON.stringify(currentUser))
 
+    // Redirect to Stripe checkout
+    const plan = window._selectedPlan || 'pro'
+    const checkoutRes = await fetch(`${API}/api/stripe/checkout`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+      body: JSON.stringify({ plan })
+    })
+    const checkoutData = await checkoutRes.json()
+    if (checkoutData.url) {
+      window.location.href = checkoutData.url
+    } else {
+      showApp()
+    }
   } catch(e) { errEl.textContent = 'Connection error'; errEl.style.display = 'block' }
 }
 
@@ -407,8 +420,8 @@ async function signup() {
   errEl.style.display = 'none'
   if (!name || !email || !password) { errEl.textContent = 'Please fill in all fields'; errEl.style.display = 'block'; return }
   try {
-    const selectedPlan = window._selectedPlan || "pro"
-    const res = await fetch(`${API}/api/auth/signup`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({name, email, password, language, plan: selectedPlan}) })
+    const plan = window._selectedPlan || 'pro'
+  const res = await fetch(`${API}/api/auth/signup`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({name, email, password, language, plan}) })
     const data = await res.json()
     if (!res.ok) { errEl.textContent = data.error || 'Signup failed'; errEl.style.display = 'block'; return }
     token = data.token; currentUser = data.customer
@@ -416,10 +429,11 @@ async function signup() {
     localStorage.setItem('rafiq_user', JSON.stringify(currentUser))
 
     // Redirect to Stripe checkout
+    const plan = window._selectedPlan || 'pro'
     const checkoutRes = await fetch(`${API}/api/stripe/checkout`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-      body: JSON.stringify({ plan: selectedPlan })
+      body: JSON.stringify({ plan })
     })
     const checkoutData = await checkoutRes.json()
     if (checkoutData.url) {
@@ -480,9 +494,11 @@ function showApp() {
   document.getElementById('settings-language').value = currentUser.language || 'ar'
   // Show pending message if not active
   if (currentUser.plan_status === 'pending') {
-    document.getElementById('welcome-msg').textContent = currentUser.language === 'ar'
-      ? 'مرحبا! حسابك في انتظار الدفع. يرجى إكمال عملية الدفع للبدء.'
-      : 'Hi! Your account is pending payment. Please complete checkout to get started.'
+    const lang = currentUser.language === 'ar'
+    const msgEl = document.getElementById('welcome-msg')
+    msgEl.innerHTML = lang
+      ? `مرحبا! حسابك في انتظار الدفع.<br><br><button onclick="completePendingPayment()" style="padding:12px 24px;background:#C4783A;color:white;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;margin-top:8px">أكمل الدفع الآن →</button>`
+      : `Hi! Your account is pending payment.<br><br><button onclick="completePendingPayment()" style="padding:12px 24px;background:#C4783A;color:white;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;margin-top:8px">Complete payment now →</button>`
     return
   }
   document.getElementById('welcome-msg').textContent = currentUser.language === 'ar'
@@ -498,6 +514,20 @@ function showPage(page) {
   document.getElementById(`page-${page}`).classList.add('active')
   document.getElementById(`nav-${page}`).classList.add('active')
   if (page === 'dashboard') loadDashboard()
+}
+
+
+async function completePendingPayment() {
+  const plan = currentUser.plan || 'basic'
+  try {
+    const res = await fetch(`${API}/api/stripe/checkout`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+      body: JSON.stringify({ plan })
+    })
+    const data = await res.json()
+    if (data.url) window.location.href = data.url
+  } catch(e) { alert('Connection error. Try again.') }
 }
 
 async function sendMessage() {
