@@ -122,6 +122,9 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sa
 .btn-save{padding:10px 20px;background:var(--orange);border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;color:white}
 .btn-save:hover{background:#A0602A}
 .form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem}
+.detail-item{padding:0.8rem 1rem;background:#FAFAF8;border-radius:10px}
+.detail-label{font-size:10px;font-weight:700;color:var(--light);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px}
+.detail-value{font-size:14px;font-weight:600;color:var(--dark)}
 .revenue-total{background:var(--dark);border-radius:16px;padding:1.5rem;margin-bottom:1.2rem;display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem}
 .rev-stat{text-align:center}
 .rev-val{font-size:1.8rem;font-weight:800;color:var(--orange);letter-spacing:-1px}
@@ -189,6 +192,9 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sa
       </a>
       <a class="nav-item" onclick="showPage('integrations')" id="nav-integrations">
         <span class="nav-icon">🔗</span> Integrations
+      </a>
+      <a class="nav-item" onclick="showPage('export')" id="nav-export">
+        <span class="nav-icon">📥</span> Export
       </a>
     </div>
 
@@ -295,6 +301,9 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sa
             <div class="page-sub">All customer conversations with Rafiq</div>
           </div>
         </div>
+        <div style="margin-bottom:1rem">
+          <input class="search-input" id="convo-search" placeholder="Search conversations..." oninput="filterConversations()" style="width:100%"/>
+        </div>
         <div class="card">
           <div class="card-header">
             <span class="card-title">Recent Activity</span>
@@ -305,6 +314,43 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sa
         </div>
       </div>
 
+
+
+      <!-- EXPORT -->
+      <div class="page" id="page-export">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Export Data</div>
+            <div class="page-sub">Download your customer data as CSV</div>
+          </div>
+        </div>
+        <div class="card" style="max-width:600px">
+          <div class="card-header"><span class="card-title">Export Options</span></div>
+          <div style="padding:1.5rem;display:flex;flex-direction:column;gap:1rem">
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:1rem;border:1px solid var(--border);border-radius:12px">
+              <div>
+                <div style="font-size:14px;font-weight:600;color:var(--dark)">All Customers</div>
+                <div style="font-size:12px;color:var(--light);margin-top:2px">Name, email, plan, status, join date</div>
+              </div>
+              <button class="btn-save" onclick="exportCSV('customers')">Download CSV</button>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:1rem;border:1px solid var(--border);border-radius:12px">
+              <div>
+                <div style="font-size:14px;font-weight:600;color:var(--dark)">Active Customers Only</div>
+                <div style="font-size:12px;color:var(--light);margin-top:2px">Customers on active or trial plans</div>
+              </div>
+              <button class="btn-save" onclick="exportCSV('active')">Download CSV</button>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:1rem;border:1px solid var(--border);border-radius:12px">
+              <div>
+                <div style="font-size:14px;font-weight:600;color:var(--dark)">Revenue Report</div>
+                <div style="font-size:12px;color:var(--light);margin-top:2px">Plan, monthly value per customer</div>
+              </div>
+              <button class="btn-save" onclick="exportCSV('revenue')">Download CSV</button>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <!-- REVENUE -->
       <div class="page" id="page-revenue">
@@ -355,6 +401,43 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sa
       </div>
 
       
+
+
+      <!-- EXPORT -->
+      <div class="page" id="page-export">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Export Data</div>
+            <div class="page-sub">Download your customer data as CSV</div>
+          </div>
+        </div>
+        <div class="card" style="max-width:600px">
+          <div class="card-header"><span class="card-title">Export Options</span></div>
+          <div style="padding:1.5rem;display:flex;flex-direction:column;gap:1rem">
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:1rem;border:1px solid var(--border);border-radius:12px">
+              <div>
+                <div style="font-size:14px;font-weight:600;color:var(--dark)">All Customers</div>
+                <div style="font-size:12px;color:var(--light);margin-top:2px">Name, email, plan, status, join date</div>
+              </div>
+              <button class="btn-save" onclick="exportCSV('customers')">Download CSV</button>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:1rem;border:1px solid var(--border);border-radius:12px">
+              <div>
+                <div style="font-size:14px;font-weight:600;color:var(--dark)">Active Customers Only</div>
+                <div style="font-size:12px;color:var(--light);margin-top:2px">Customers on active or trial plans</div>
+              </div>
+              <button class="btn-save" onclick="exportCSV('active')">Download CSV</button>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:1rem;border:1px solid var(--border);border-radius:12px">
+              <div>
+                <div style="font-size:14px;font-weight:600;color:var(--dark)">Revenue Report</div>
+                <div style="font-size:12px;color:var(--light);margin-top:2px">Plan, monthly value per customer</div>
+              </div>
+              <button class="btn-save" onclick="exportCSV('revenue')">Download CSV</button>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <!-- REVENUE -->
       <div class="page" id="page-revenue">
@@ -543,6 +626,7 @@ function customerRow(c, cols = 5) {
       <td><span class="dot ${c.plan_status}"></span>${c.plan_status}</td>
       <td>${formatDate(c.created_at)}</td>
       <td style="display:flex;gap:6px">
+        <button onclick="openDetailModal(allCustomers.find(x=>x.id==='${c.id}'))" style="padding:5px 10px;background:#F0F0F0;border:1px solid #DDD;border-radius:8px;color:var(--dark);font-size:12px;font-weight:600;cursor:pointer">View</button>
         <button onclick="openEditModal('${c.id}','${c.email}','${c.name}','${c.plan}','${c.plan_status}')" style="padding:5px 10px;background:#FEF0E3;border:1px solid #F0CEAD;border-radius:8px;color:var(--orange);font-size:12px;font-weight:600;cursor:pointer">Edit</button>
         <button onclick="openEmailModal('${c.email}','${c.name}')" class="send-email-btn">Email</button>
         <button onclick="deleteCustomer('${c.id}','${c.email}')" style="padding:5px 10px;background:#fee;border:1px solid #fcc;border-radius:8px;color:#c00;font-size:12px;font-weight:600;cursor:pointer">Delete</button>
@@ -657,6 +741,103 @@ async function loadConversations() {
 }
 
 
+
+
+// CUSTOMER DETAIL
+async function openDetailModal(customer) {
+  document.getElementById('detail-name').textContent = customer.name || 'Unknown'
+  document.getElementById('detail-email').textContent = customer.email
+  document.getElementById('detail-plan').innerHTML = `<span class="badge ${customer.plan}">${customer.plan}</span>`
+  document.getElementById('detail-status').innerHTML = `<span class="dot ${customer.plan_status}"></span>${customer.plan_status}`
+  document.getElementById('detail-lang').textContent = customer.language === 'ar' ? '🇱🇧 Arabic' : '🇬🇧 English'
+  document.getElementById('detail-joined').textContent = formatDate(customer.created_at)
+  document.getElementById('detail-value').textContent = `$${PLAN_PRICES[customer.plan] || 0}/mo`
+  document.getElementById('detail-gmail').textContent = 'Loading...'
+  document.getElementById('detail-convos').textContent = 'Loading...'
+  openModal('detail-modal')
+
+  // Load integrations
+  try {
+    const res = await fetch(`${API}/api/admin/customers/${customer.id}/integrations`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    })
+    const data = await res.json()
+    const gmail = data.integrations?.find(i => i.type === 'gmail')
+    document.getElementById('detail-gmail').textContent = gmail ? `✓ ${gmail.email}` : 'Not connected'
+  } catch(e) { document.getElementById('detail-gmail').textContent = '—' }
+
+  // Load conversations
+  try {
+    const res = await fetch(`${API}/api/admin/customers/${customer.id}/conversations`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    })
+    const data = await res.json()
+    const convos = data.conversations || []
+    if (convos.length === 0) {
+      document.getElementById('detail-convos').textContent = 'No conversations yet'
+      return
+    }
+    document.getElementById('detail-convos').innerHTML = convos.map(c => `
+      <div style="padding:8px 0;border-bottom:0.5px solid var(--border);font-size:12px">
+        <span style="font-weight:700;color:${c.role === 'user' ? 'var(--dark)' : 'var(--orange)'}">${c.role === 'user' ? 'Customer' : 'Rafiq'}:</span>
+        ${c.content?.substring(0, 120)}${c.content?.length > 120 ? '...' : ''}
+      </div>
+    `).join('')
+  } catch(e) { document.getElementById('detail-convos').textContent = 'Could not load conversations' }
+}
+
+// SEARCH CONVERSATIONS
+let convosData = []
+function filterConversations() {
+  const q = document.getElementById('convo-search')?.value?.toLowerCase() || ''
+  const filtered = q ? convosData.filter(c => c.content?.toLowerCase().includes(q) || c.customer_email?.toLowerCase().includes(q)) : convosData
+  renderConversations(filtered)
+}
+
+function renderConversations(convos) {
+  const el = document.getElementById('conversations-list')
+  if (!convos.length) { el.innerHTML = '<div class="empty">No conversations found</div>'; return }
+  el.innerHTML = convos.map(c => `
+    <div style="padding:12px 0;border-bottom:0.5px solid var(--border)">
+      <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+        <span style="font-size:12px;font-weight:700;color:${c.role === 'user' ? 'var(--dark)' : 'var(--orange)'}">${c.customer_email || 'Unknown'} — ${c.role === 'user' ? 'Customer' : 'Rafiq'}</span>
+        <span style="font-size:11px;color:var(--light)">${formatDate(c.created_at)}</span>
+      </div>
+      <div style="font-size:13px;color:var(--light)">${c.content?.substring(0, 150)}${c.content?.length > 150 ? '...' : ''}</div>
+    </div>
+  `).join('')
+}
+
+// EXPORT CSV
+function exportCSV(type) {
+  if (allCustomers.length === 0) { showNotif('No customers to export'); return }
+  let data = allCustomers
+  let filename = 'rafiq-customers.csv'
+  let headers = []
+  let rows = []
+
+  if (type === 'active') {
+    data = allCustomers.filter(c => c.plan_status === 'active' || c.plan_status === 'trial')
+    filename = 'rafiq-active-customers.csv'
+  }
+
+  if (type === 'revenue') {
+    headers = ['Name', 'Email', 'Plan', 'Status', 'Monthly Value']
+    rows = data.map(c => [c.name || '', c.email, c.plan, c.plan_status, `$${PLAN_PRICES[c.plan] || 0}`])
+    filename = 'rafiq-revenue.csv'
+  } else {
+    headers = ['Name', 'Email', 'Language', 'Plan', 'Status', 'Joined']
+    rows = data.map(c => [c.name || '', c.email, c.language === 'ar' ? 'Arabic' : 'English', c.plan, c.plan_status, formatDate(c.created_at)])
+  }
+
+  const csv = [headers, ...rows].map(r => r.map(v => `"${v}"`).join(',')).join('\n')
+  const blob = new Blob([csv], {type: 'text/csv'})
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url; a.download = filename; a.click()
+  URL.revokeObjectURL(url)
+  showNotif('Downloaded ✓')
+}
 
 // MODAL HELPERS
 function closeModal(id) { document.getElementById(id).classList.remove('open') }
@@ -888,5 +1069,31 @@ async function loadIntegrations() {
     </div>
   </div>
 </div>
+
+<!-- CUSTOMER DETAIL MODAL -->
+<div class="modal-overlay" id="detail-modal" style="align-items:flex-start;padding:2rem;overflow-y:auto">
+  <div class="modal" style="max-width:680px;width:100%">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem">
+      <div>
+        <div class="modal-title" id="detail-name">Customer</div>
+        <div style="font-size:13px;color:var(--light)" id="detail-email"></div>
+      </div>
+      <button class="btn-cancel" onclick="closeModal('detail-modal')">Close</button>
+    </div>
+    <div class="detail-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem">
+      <div class="detail-item"><div class="detail-label">Plan</div><div class="detail-value" id="detail-plan"></div></div>
+      <div class="detail-item"><div class="detail-label">Status</div><div class="detail-value" id="detail-status"></div></div>
+      <div class="detail-item"><div class="detail-label">Language</div><div class="detail-value" id="detail-lang"></div></div>
+      <div class="detail-item"><div class="detail-label">Joined</div><div class="detail-value" id="detail-joined"></div></div>
+      <div class="detail-item"><div class="detail-label">Gmail</div><div class="detail-value" id="detail-gmail"></div></div>
+      <div class="detail-item"><div class="detail-label">Monthly Value</div><div class="detail-value" id="detail-value" style="color:var(--orange)"></div></div>
+    </div>
+    <div style="font-size:12px;font-weight:700;color:var(--light);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px">Recent Conversations</div>
+    <div id="detail-convos" style="max-height:300px;overflow-y:auto;background:#FAFAF8;border-radius:12px;padding:1rem">
+      Loading...
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
