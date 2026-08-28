@@ -1156,7 +1156,23 @@ async function addCustomer() {
   }
 
   try {
-    // 1. Sign up the customer
+    // 1. Check if email exists — if pending, delete it first
+    const existing = allCustomers.find(c => c.email.toLowerCase() === email.toLowerCase())
+    if (existing) {
+      if (existing.plan_status === 'pending') {
+        // Delete the stuck pending customer first
+        await fetch(`${API}/api/admin/customers/${existing.id}`, {
+          method: 'DELETE',
+          headers: { 'Authorization': `Bearer ${token}` }
+        })
+      } else {
+        errEl.textContent = 'Email already registered with an active account. Use Edit instead.'
+        errEl.style.display = 'block'
+        return
+      }
+    }
+
+    // 2. Sign up the customer
     const signupRes = await fetch(`${API}/api/auth/signup`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -1169,9 +1185,9 @@ async function addCustomer() {
       return
     }
 
-    // 2. Set the correct plan status via admin endpoint
+    // 3. Set the correct plan status via admin endpoint
     const customerId = signupData.customer.id
-    const updateRes = await fetch(`${API}/api/admin/customers/${customerId}`, {
+    await fetch(`${API}/api/admin/customers/${customerId}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
       body: JSON.stringify({ plan, plan_status, name })
